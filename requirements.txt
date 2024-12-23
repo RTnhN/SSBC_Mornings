@@ -1,0 +1,6 @@
+openai-whisper
+bs4
+tqdm
+requests
+lxml
+lunr

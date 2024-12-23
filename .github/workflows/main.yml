@@ -1,0 +1,42 @@
+name: Transcribe and save
+
+on:
+  # schedule:
+  #   - cron: '0 5 * * 1' # This will run the action Monday at 5am
+  workflow_dispatch:
+    
+
+jobs:
+  run-python-script:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        sudo apt-get install ffmpeg
+
+    - name: Run Python script
+      run: |
+        python Code/script.py
+        python Code/index.py
+        python Code/render.py
+      
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: "Add more transcript data"
+        title: "Automatic - add more transcript data"
+        body: "This PR was automatically created by the GitHub Action workflow."
+        branch: "automated-changes-${{ github.run_id }}"
